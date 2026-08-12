@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sister's Closet 💕</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#fff1f7,#f5efff);color:#35283d}
+  .app{max-width:760px;margin:auto;min-height:100vh;padding:24px 16px 50px}
+  header{text-align:center;padding:18px 8px 22px}
+  h1{margin:0;font-size:34px}.sub{margin:8px 0 0;color:#76657c}
+  .card{background:#fff;border-radius:24px;padding:20px;margin:14px 0;box-shadow:0 10px 30px #6c47751a}
+  h2{margin:0 0 14px;font-size:21px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  button,.category{border:0;border-radius:18px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
+  .category{background:#faf4ff;text-align:left;color:#4b3654;border:2px solid transparent}
+  .category:hover,.category.selected{border-color:#c68be7;transform:translateY(-2px)}
+  .emoji{font-size:30px;display:block;margin-bottom:6px}
+  label{font-weight:700;display:block;margin:12px 0 7px}
+  input,textarea,select{width:100%;padding:13px;border:1px solid #ddd0e2;border-radius:13px;font:inherit;background:#fff}
+  textarea{min-height:85px;resize:vertical}
+  .primary{width:100%;background:#a95bd1;color:#fff;font-size:18px;margin-top:16px}
+  .secondary{background:#f2e8f7;color:#583866}
+  .hidden{display:none}
+  .preview{background:#fff5fb;border-radius:18px;padding:16px;margin-top:15px;line-height:1.55}
+  .success{text-align:center;padding:20px}.success .big{font-size:62px}
+  .tiny{font-size:13px;color:#88788e;text-align:center;margin-top:14px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:500px){.grid{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>💕 Sister's Closet</h1>
+  <p class="sub">Ask nicely to borrow something from her closet!</p>
+</header>
+
+<div id="home">
+  <section class="card">
+    <h2>What do you want to borrow?</h2>
+    <div class="grid" id="categories"></div>
+  </section>
+
+  <section class="card hidden" id="requestCard">
+    <h2>Make your borrowing request 💌</h2>
+
+    <label for="item">Which item?</label>
+    <input id="item" placeholder="e.g. the black zip-up jacket">
+
+    <div class="row">
+      <div>
+        <label for="when">When do you need it?</label>
+        <input id="when" type="date">
+      </div>
+      <div>
+        <label for="return">I'll return it by…</label>
+        <input id="return" type="date">
+      </div>
+    </div>
+
+    <label for="reason">Why should she let you borrow it? 💕</label>
+    <textarea id="reason" placeholder="Because it would look so cute with my outfit..."></textarea>
+
+    <button class="primary" onclick="sendRequest()">PLEASE LET ME BORROW IT 💕</button>
+    <div class="preview" id="preview">Your request will appear here…</div>
+  </section>
+</div>
+
+<div id="result" class="card hidden"></div>
+
+<div id="decisionCard" class="card hidden">
+  <div class="success">
+    <div class="big">👀</div>
+    <h2>What does your sister say?</h2>
+    <p id="decisionItem"></p>
+    <button class="primary" onclick="answerYes()">YES! 💕</button>
+    <button class="secondary" style="width:100%;margin-top:10px" onclick="answerNo()">NO 😭</button>
+    <div id="answer" class="preview hidden"></div>
+  </div>
+</div>
+<p class="tiny">Made for sister closet negotiations ✨</p>
+</div>
+
+<script>
+const cats = [
+ ["🧥","Jacket"],["👕","T-Shirt"],["👚","Top"],["👖","Pants"],
+ ["🩳","Shorts"],["👗","Dress"],["🧶","Sweater / Hoodie"],
+ ["👟","Shoes"],["👜","Accessory"],["✨","Something Else"]
+];
+
+const catBox=document.getElementById("categories");
+cats.forEach(([emoji,name])=>{
+  const b=document.createElement("button");
+  b.className="category";
+  b.innerHTML=`<span class="emoji">${emoji}</span>Borrow a ${name}`;
+  b.onclick=()=>choose(name,b);
+  catBox.appendChild(b);
+});
+
+let chosen="";
+function choose(name,btn){
+  chosen=name;
+  document.querySelectorAll(".category").forEach(x=>x.classList.remove("selected"));
+  btn.classList.add("selected");
+  document.getElementById("requestCard").classList.remove("hidden");
+  document.getElementById("item").placeholder=`e.g. her favorite ${name.toLowerCase()}`;
+  document.getElementById("requestCard").scrollIntoView({behavior:"smooth",block:"start"});
+  updatePreview();
+}
+["item","when","return","reason"].forEach(id=>document.getElementById(id).addEventListener("input",updatePreview));
+
+function updatePreview(){
+  const item=document.getElementById("item").value || `a ${chosen.toLowerCase()}`;
+  const when=document.getElementById("when").value || "the day I need it";
+  const ret=document.getElementById("return").value || "when I'm done";
+  const reason=document.getElementById("reason").value || "I promise I'll take good care of it!";
+  document.getElementById("preview").innerHTML=
+    `💌 <b>Dear Sister,</b><br><br>
+    Can I please borrow <b>${item}</b> from your closet? 🥹<br>
+    I need it <b>${when}</b> and I'll return it by <b>${ret}</b>.<br><br>
+    <i>${reason}</i><br><br>
+    Pretty please? 💕`;
+}
+
+function answerYes(){
+  const a=document.getElementById("answer");
+  a.classList.remove("hidden");
+  a.innerHTML="🎉 SHE SAID YES! 🎉<br><br>Go grab it! 💕";
+}
+function answerNo(){
+  const a=document.getElementById("answer");
+  a.classList.remove("hidden");
+  a.innerHTML="😭 She said no!<br><br>Time for a very polite negotiation… 😇";
+}
+
+function sendRequest(){
+  const item=document.getElementById("item").value || `your ${chosen.toLowerCase()}`;
+  const reason=document.getElementById("reason").value || "I promise I'll take good care of it!";
+  document.getElementById("home").classList.add("hidden");
+  const r=document.getElementById("result");
+  r.classList.remove("hidden");
+  r.innerHTML=`<div class="success">
+    <div class="big">💌</div>
+    <h2>Borrowing Request Ready!</h2>
+    <p><b>${item}</b> has officially been requested.</p>
+    <p>Reason: “${reason}”</p>
+    <p>Hand the phone to your sister so she can choose. 😈</p>
+  </div>`;
+  document.getElementById("decisionCard").classList.remove("hidden");
+  document.getElementById("decisionItem").innerHTML=`Can you borrow <b>${item}</b>?`;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+</script>
+</body>
+</html>
